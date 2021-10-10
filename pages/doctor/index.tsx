@@ -10,12 +10,13 @@ import { motion } from "framer-motion";
 import { pageAnimationVariants } from "../../src/services/animationUtils";
 
 export const getStaticProps = async () => {
-  const data = await axios.get(
-    "https://indian-unique-medical-card.vercel.app/api/doctor"
-  );
+  // const data = await axios.get(
+  //   "https://indian-unique-medical-card.vercel.app/api/doctor"
+  // );
   return {
     props: {
-      users: data.data,
+      users: [],
+      // data.data,
     },
   };
 };
