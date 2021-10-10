@@ -70,7 +70,7 @@ const getChartData = (
   ];
 };
 
-const index = () => {
+const Dashboard = () => {
   const router = useRouter();
   const [{ user }] = useStateValue();
   const [openAlert, setOpenAlert] = useState(false);
@@ -246,4 +246,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Dashboard;

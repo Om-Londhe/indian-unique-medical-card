@@ -34,27 +34,47 @@ const Footer = () => {
       <h1 className={footerStyles.socialTitle}>My Socials</h1>
       <ul className={footerStyles.socialIcons}>
         <li>
-          <a target="_blank" href="https://www.facebook.com/om.londhe.332/">
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://www.facebook.com/om.londhe.332/"
+          >
             <Facebook className={footerStyles.logoFacebook} />
           </a>
         </li>
         <li>
-          <a target="_blank" href="https://www.instagram.com/theomlondhe/">
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://www.instagram.com/theomlondhe/"
+          >
             <Instagram className={footerStyles.logoInstagram} />
           </a>
         </li>
         <li>
-          <a target="_blank" href="https://twitter.com/OmLondhe2003">
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://twitter.com/OmLondhe2003"
+          >
             <Twitter className={footerStyles.logoTwitter} />
           </a>
         </li>
         <li>
-          <a target="_blank" href="https://github.com/Om-Londhe">
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://github.com/Om-Londhe"
+          >
             <GitHub className={footerStyles.logoGithub} />
           </a>
         </li>
         <li>
-          <a target="_blank" href="https://www.linkedin.com/in/omlondhe/">
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://www.linkedin.com/in/omlondhe/"
+          >
             <LinkedIn className={footerStyles.logoLinkedin} />
           </a>
         </li>

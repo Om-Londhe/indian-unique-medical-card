@@ -69,8 +69,8 @@ const Doctor = ({ users }: DoctorIndexProps) => {
                 .toLowerCase()
                 .includes(searchString.toLowerCase())
           )
-          .map((user) => (
-            <Link href={`/patient/${user.id}`}>
+          .map((user, index) => (
+            <Link href={`/patient/${user.id}`} key={index}>
               <a className={doctorStyles.user}>
                 <Avatar
                   className={doctorStyles.avatar}

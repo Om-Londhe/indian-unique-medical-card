@@ -219,8 +219,9 @@ const Register = () => {
         </div>
         {userType === "doctor" ? (
           <p className={registerStyles.helperText}>
-            You said that you are doctor, but still you won't be able to update
-            patient data until you are verified by administrators.
+            {
+              "You said that you are doctor, but still you won't be able to update patient data until you are verified by administrators."
+            }
           </p>
         ) : (
           <></>

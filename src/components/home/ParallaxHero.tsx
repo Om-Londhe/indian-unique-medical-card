@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import parallaxHeroStyles from "../../../styles/components/home/ParallaxHero.module.css";
+import Link from "next/link";
 
 const ParallaxHero = () => {
   useEffect(() => {
@@ -36,13 +37,11 @@ const ParallaxHero = () => {
         alt="mountains_behind"
         id="mountains_behind"
       />
-      <a
-        href="/auth/register"
-        id="button"
-        className={parallaxHeroStyles.button}
-      >
-        Get started!
-      </a>
+      <Link href="/auth/register">
+        <a id="button" className={parallaxHeroStyles.button}>
+          Get started!
+        </a>
+      </Link>
       <img
         src="/mountains_front.png"
         alt="mountains_front"
