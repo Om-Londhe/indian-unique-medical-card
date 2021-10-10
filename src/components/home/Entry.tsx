@@ -10,7 +10,10 @@ import { Alert } from "@material-ui/lab";
 import { useRouter } from "next/router";
 import React, { FormEvent, forwardRef, useState } from "react";
 import entryStyles from "../../../styles/components/home/Entry.module.css";
-import { sendEmailVerificationLinkForLoggingIn } from "../../services/firebaseUtils";
+import {
+  checkIfEmailExist,
+  sendEmailVerificationLinkForLoggingIn,
+} from "../../services/firebaseUtils";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -31,8 +34,10 @@ const Entry = () => {
     e.preventDefault();
     if (email.length > 4) {
       setLoading(true);
-      await sendEmailVerificationLinkForLoggingIn(email);
-      setLoading(false);
+      if (await checkIfEmailExist(email)) {
+        await sendEmailVerificationLinkForLoggingIn(email);
+        setLoading(false);
+      }
       setOpenAlert(true);
     }
   };

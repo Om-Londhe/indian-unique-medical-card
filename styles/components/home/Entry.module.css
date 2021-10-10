@@ -35,6 +35,7 @@
   outline: none;
   border: none;
   border-radius: 51px;
+  min-width: 10px;
 }
 
 .loginIcon {

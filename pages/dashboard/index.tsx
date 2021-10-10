@@ -153,39 +153,43 @@ const Dashboard = () => {
         </div>
         <div className={dashboardStyles.healthDataContainer}>
           <h2 className={dashboardStyles.title}>Health data</h2>
-          {user?.medicalData
-            .sort(
-              (
-                a: {
-                  issue: string;
-                  fees: number;
-                  medicines: number;
-                  on: any;
-                },
-                b: {
-                  issue: string;
-                  fees: number;
-                  medicines: number;
-                  on: any;
-                }
-              ) => Date.parse(b?.on) - Date.parse(a?.on)
-            )
-            .map(
-              (data: {
-                on: string;
-                fees: number;
-                medicines: number;
-                issue: string;
-              }) => (
-                <HealthCard
-                  key={data?.on.toString()}
-                  date={data?.on.toString()}
-                  fees={data?.fees}
-                  medicines={data?.medicines}
-                  issue={data?.issue}
-                />
+          {user?.medicalData.length ? (
+            user?.medicalData
+              .sort(
+                (
+                  a: {
+                    issue: string;
+                    fees: number;
+                    medicines: number;
+                    on: any;
+                  },
+                  b: {
+                    issue: string;
+                    fees: number;
+                    medicines: number;
+                    on: any;
+                  }
+                ) => Date.parse(b?.on) - Date.parse(a?.on)
               )
-            )}
+              .map(
+                (data: {
+                  on: string;
+                  fees: number;
+                  medicines: number;
+                  issue: string;
+                }) => (
+                  <HealthCard
+                    key={data?.on.toString()}
+                    date={data?.on.toString()}
+                    fees={data?.fees}
+                    medicines={data?.medicines}
+                    issue={data?.issue}
+                  />
+                )
+              )
+          ) : (
+            <p style={{ color: "white" }}>No previous records</p>
+          )}
         </div>
       </div>
       <div className={dashboardStyles.graphContainer}>
@@ -199,18 +203,24 @@ const Dashboard = () => {
             Total- ₹{expenditureData.totalExpenditure}
           </p>
         </div>
-        <div className={dashboardStyles.chart}>
-          <Doughnut data={chartData} />
-        </div>
-        <div className={dashboardStyles.chart}>
-          <Line data={chartData} />
-        </div>
-        <div className={dashboardStyles.chart}>
-          <Bar data={chartData} />
-        </div>
-        <div className={dashboardStyles.chart}>
-          <PolarArea data={chartData} />
-        </div>
+        {user?.medicalData.length ? (
+          <>
+            <div className={dashboardStyles.chart}>
+              <Doughnut data={chartData} />
+            </div>
+            <div className={dashboardStyles.chart}>
+              <Line data={chartData} />
+            </div>
+            <div className={dashboardStyles.chart}>
+              <Bar data={chartData} />
+            </div>
+            <div className={dashboardStyles.chart}>
+              <PolarArea data={chartData} />
+            </div>
+          </>
+        ) : (
+          <p style={{ color: "white" }}>No previous records</p>
+        )}
       </div>
       <Snackbar
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
