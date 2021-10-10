@@ -42,6 +42,8 @@ const Transition = forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+export type Color = "success" | "info" | "warning" | "error";
+
 const Register = () => {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -52,7 +54,7 @@ const Register = () => {
   const [openProfileOptions, setOpenProfileOptions] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
+  const [severity, setSeverity] = useState<Color>("error");
   const [loading, setLoading] = useState(false);
 
   const register = async (e: React.FormEvent<HTMLFormElement>) => {

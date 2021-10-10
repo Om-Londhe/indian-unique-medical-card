@@ -77,11 +77,13 @@ const getChartData = (
   };
 };
 
+export type Color = "success" | "info" | "warning" | "error";
+
 const Patient = () => {
   const router = useRouter();
   const [{ user }, dispatch] = useStateValue();
   const [alertMessage, setAlertMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
+  const [severity, setSeverity] = useState<Color>("error");
   const [showAlertMessage, setShowAlertMessage] = useState(false);
   const [patient, setPatient] = useState<{
     id: string;
