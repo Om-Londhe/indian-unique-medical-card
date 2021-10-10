@@ -30,7 +30,7 @@ export const sendEmailVerificationLink = async (
   userType: string
 ) => {
   await sendSignInLinkToEmail(auth, email, {
-    url: `http://localhost:3000/auth/registerUser?name=${name}&phoneNumber=${phoneNumber}&email=${email}&address=${address}&userType=${userType}&photoURL=${photoURL}`,
+    url: `https://indian-unique-medical-card.vercel.app/auth/registerUser?name=${name}&phoneNumber=${phoneNumber}&email=${email}&address=${address}&userType=${userType}&photoURL=${photoURL}`,
     handleCodeInApp: true,
   });
 };
@@ -85,7 +85,7 @@ export const getUserDataFromEmail = async (emailToCheck: string) => {
 
 export const sendEmailVerificationLinkForLoggingIn = async (email: string) => {
   await sendSignInLinkToEmail(auth, email, {
-    url: `http://localhost:3000/auth/registerUser?email=${email}`,
+    url: `https://indian-unique-medical-card.vercel.app/auth/registerUser?email=${email}`,
     handleCodeInApp: true,
   });
 };
