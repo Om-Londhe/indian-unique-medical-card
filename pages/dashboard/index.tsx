@@ -145,7 +145,7 @@ const Dashboard = () => {
               className={dashboardStyles.doctorButton}
               onClick={() => router.push("/doctor")}
             >
-              Go to Doctor's panel
+              {"Go to Doctor's panel"}
             </button>
           ) : (
             <></>
