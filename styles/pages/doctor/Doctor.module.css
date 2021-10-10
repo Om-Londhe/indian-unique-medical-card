@@ -1,0 +1,56 @@
+.main {
+  background: #1c0522;
+  min-height: 100vh;
+  background: url("/blob-scatter.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.inputField {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid lightgrey;
+  background: white;
+  border-radius: 4px;
+  margin-bottom: 7px;
+}
+
+.inputField input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.inputField,
+.users {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.users {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 1);
+  border-left: 1px solid lightgrey;
+  border-top: 1px solid lightgrey;
+  border-radius: 11px;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+}
+
+.name {
+  margin-left: 7px;
+}

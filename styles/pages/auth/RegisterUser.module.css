@@ -1,0 +1,14 @@
+.registerUser {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+.registerUser p {
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  margin-top: 11px;
+}

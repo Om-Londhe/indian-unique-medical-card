@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+
 html,
 body {
   padding: 0;
@@ -13,4 +15,30 @@ a {
 
 * {
   box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+  transition: all 444ms !important;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 11px;
+  transition: all 444ms !important;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #717171;
+  border-radius: 10px;
+  transition: all 444ms !important;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #444444;
 }

@@ -1,0 +1,22 @@
+.healthCard {
+  border: 1px solid lightgrey;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 11px;
+  padding: 7px;
+  margin-bottom: 7px;
+}
+
+.healthCard h4 {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+.issue {
+  font-size: 18px;
+  font-weight: bold !important;
+}
+
+.date {
+  font-size: 13px;
+}
