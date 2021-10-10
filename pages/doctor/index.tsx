@@ -16,6 +16,7 @@ export const getStaticProps = async () => {
   return {
     props: {
       users: data.data,
+      revalidate: true,
     },
   };
 };
