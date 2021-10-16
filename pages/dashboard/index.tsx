@@ -11,6 +11,7 @@ import { Alert } from "@material-ui/lab";
 import { TransitionProps } from "@material-ui/core/transitions";
 import { motion } from "framer-motion";
 import { pageAnimationVariants } from "../../src/services/animationUtils";
+import { getMedicalDataOfUserID } from "../../src/services/firebaseUtils";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -74,18 +75,38 @@ const Dashboard = () => {
   const router = useRouter();
   const [{ user }] = useStateValue();
   const [openAlert, setOpenAlert] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [expenditureData, setExpenditureData] = useState<any>({
     fees: 0,
     medicines: 0,
     totalCost: 0,
   });
   const [chartData, setChartData] = useState<any>();
+  const [medicalData, setMedicalData] = useState<
+    {
+      id: string;
+      issue: any;
+      fees: any;
+      medicines: any;
+      on: any;
+      patientID: any;
+    }[]
+  >();
+
+  const loadLatestMedicalData = () => {
+    setLoading(true);
+    getMedicalDataOfUserID(user.id).then((data) => {
+      setMedicalData(data);
+      const response = getChartData(data);
+      setChartData(response[0]);
+      setExpenditureData(response[1]);
+      setLoading(false);
+    });
+  };
 
   useEffect(() => {
     if (user) {
-      const response = getChartData(user?.medicalData);
-      setChartData(response[0]);
-      setExpenditureData(response[1]);
+      loadLatestMedicalData();
     }
   }, [user]);
 
@@ -153,37 +174,45 @@ const Dashboard = () => {
         </div>
         <div className={dashboardStyles.healthDataContainer}>
           <h2 className={dashboardStyles.title}>Health data</h2>
-          {user?.medicalData.length ? (
-            user?.medicalData
-              .sort(
+          {medicalData?.length ? (
+            medicalData
+              ?.sort(
                 (
                   a: {
+                    id: string;
                     issue: string;
                     fees: number;
                     medicines: number;
                     on: any;
+                    patientID: string;
                   },
                   b: {
+                    id: string;
                     issue: string;
                     fees: number;
                     medicines: number;
                     on: any;
+                    patientID: string;
                   }
                 ) => Date.parse(b?.on) - Date.parse(a?.on)
               )
               .map(
                 (data: {
+                  id: string;
                   on: string;
                   fees: number;
                   medicines: number;
                   issue: string;
+                  patientID: string;
                 }) => (
                   <HealthCard
-                    key={data?.on.toString()}
+                    key={data.id}
+                    id={data.id}
                     date={data?.on.toString()}
                     fees={data?.fees}
                     medicines={data?.medicines}
                     issue={data?.issue}
+                    patientID={data?.patientID}
                   />
                 )
               )
@@ -203,7 +232,7 @@ const Dashboard = () => {
             Total- ₹{expenditureData.totalExpenditure}
           </p>
         </div>
-        {user?.medicalData.length ? (
+        {medicalData?.length ? (
           <>
             <div className={dashboardStyles.chart}>
               <Doughnut data={chartData} />

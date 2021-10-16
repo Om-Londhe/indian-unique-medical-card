@@ -5,6 +5,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   updateDoc,
@@ -30,7 +31,7 @@ export const sendEmailVerificationLink = async (
   userType: string
 ) => {
   await sendSignInLinkToEmail(auth, email, {
-    url: `https://indian-unique-medical-card.vercel.app/auth/registerUser?name=${name}&phoneNumber=${phoneNumber}&email=${email}&address=${address}&userType=${userType}&photoURL=${photoURL}`,
+    url: `http://localhost:3000/auth/verify?name=${name}&phoneNumber=${phoneNumber}&email=${email}&address=${address}&userType=${userType}&photoURL=${photoURL}`,
     handleCodeInApp: true,
   });
 };
@@ -56,7 +57,6 @@ export const saveUserData = async (
     address,
     userType,
     photoURL,
-    medicalData: [],
   };
   const documentReference = await addDoc(collection(db, "Users"), data);
   return {
@@ -78,30 +78,56 @@ export const getUserDataFromEmail = async (emailToCheck: string) => {
     phoneNumber: response.data()?.phoneNumber,
     address: response.data()?.address,
     userType: response.data()?.userType,
-    medicalData: response.data()?.medicalData,
     photoURL: response.data()?.photoURL,
   };
 };
 
 export const sendEmailVerificationLinkForLoggingIn = async (email: string) => {
   await sendSignInLinkToEmail(auth, email, {
-    url: `https://indian-unique-medical-card.vercel.app/auth/registerUser?email=${email}`,
+    url: `http://localhost:3000/auth/verify?email=${email}`,
     handleCodeInApp: true,
   });
 };
 
 export const updateMedicalData = async (
-  id: string,
   issue: string,
   fees: number,
-  medicines: number
+  medicines: number,
+  patientID: string
 ) => {
-  await updateDoc(doc(db, "Users", id), {
-    medicalData: arrayUnion({
-      issue,
-      fees,
-      medicines,
-      on: new Date().toLocaleString(),
-    }),
+  await addDoc(collection(db, "MedicalData"), {
+    issue,
+    fees,
+    medicines,
+    on: new Date().toLocaleString(),
+    patientID,
   });
+};
+
+export const getMedicalDataOfUserID = async (userID: string) => {
+  return await (
+    await getDocs(
+      query(collection(db, "MedicalData"), where("patientID", "==", userID))
+    )
+  ).docs.map((doc) => ({
+    id: doc.id,
+    issue: doc.data().issue,
+    fees: doc.data().fees,
+    medicines: doc.data().medicines,
+    on: doc.data().on,
+    patientID: doc.data().patientID,
+  }));
+};
+
+export const getUserDataFromID = async (id: string) => {
+  const response = await await getDoc(doc(db, "Users", id));
+  return {
+    id: response.id,
+    name: response.data()?.name,
+    email: response.data()?.email,
+    phoneNumber: response.data()?.phoneNumber,
+    address: response.data()?.address,
+    userType: response.data()?.userType,
+    photoURL: response.data()?.photoURL,
+  };
 };

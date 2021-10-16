@@ -28,6 +28,7 @@ import { motion } from "framer-motion";
 import InputField from "../../src/components/auth/InputField";
 import { pageAnimationVariants } from "../../src/services/animationUtils";
 import {
+  checkIfEmailExist,
   sendEmailVerificationLink,
   uploadImage,
 } from "../../src/services/firebaseUtils";
@@ -77,20 +78,27 @@ const Register = () => {
       setSeverity("error");
     } else {
       setLoading(true);
-      const photoURL = await uploadImage(photo);
-      await sendEmailVerificationLink(
-        name,
-        email,
-        phoneNumber,
-        address,
-        photoURL,
-        userType
-      );
+      if (await checkIfEmailExist(email)) {
+        setAlertMessage(
+          `The email: ${email} already exist, kindly login to view your dashboard.`
+        );
+        setSeverity("error");
+      } else {
+        const photoURL = await uploadImage(photo);
+        await sendEmailVerificationLink(
+          name,
+          email,
+          phoneNumber,
+          address,
+          photoURL,
+          userType
+        );
+        setAlertMessage(
+          `Verify your email by clicking link sent to you on ${email}`
+        );
+        setSeverity("success");
+      }
       setLoading(false);
-      setAlertMessage(
-        `Verify your email by clicking link sent to you on ${email}`
-      );
-      setSeverity("success");
     }
     setOpenAlert(true);
   };

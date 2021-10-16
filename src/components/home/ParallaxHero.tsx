@@ -37,7 +37,7 @@ const ParallaxHero = () => {
         alt="mountains_behind"
         id="mountains_behind"
       />
-      <Link href="/auth/register">
+      <Link href="#entry">
         <a id="button" className={parallaxHeroStyles.button}>
           Get started!
         </a>

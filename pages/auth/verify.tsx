@@ -10,9 +10,11 @@ import {
   getUserDataFromEmail,
   saveUserData,
 } from "../../src/services/firebaseUtils";
-import registerUserStyles from "../../styles/pages/auth/RegisterUser.module.css";
+import verifyStyles from "../../styles/pages/auth/Verify.module.css";
+import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
+import { auth } from "../../src/services/firebase";
 
-const RegisterUser = () => {
+const Verify = () => {
   const router = useRouter();
   const [{ user }, dispatch] = useStateValue();
 
@@ -23,7 +25,6 @@ const RegisterUser = () => {
     address: string;
     userType: string;
     photoURL: string;
-    medicalData: never[];
     id: string;
   }) => {
     dispatch({
@@ -43,22 +44,35 @@ const RegisterUser = () => {
     const handleVerification = async () => {
       const { name, email, phoneNumber, address, userType, photoURL, token } =
         router.query;
-      if (name && phoneNumber && address && photoURL && userType) {
+      if (name && phoneNumber && address && photoURL && userType && email) {
         if (!(await checkIfEmailExist(email?.toString()!))) {
-          const data = await saveUserData(
-            name?.toString()!,
-            email?.toString()!,
-            phoneNumber?.toString()!,
-            address?.toString()!,
-            userType?.toString()!,
-            `${photoURL
-              ?.toString()
-              .replace(
-                "https://firebasestorage.googleapis.com/v0/b/indian-unique-medical-card.appspot.com/o/photos/",
-                "https://firebasestorage.googleapis.com/v0/b/indian-unique-medical-card.appspot.com/o/photos%2F"
-              )!}&token=${token?.toString()!}`
-          );
-          updateUserDataInLocalStorageAndState(data);
+          if (isSignInWithEmailLink(auth, location.href)) {
+            try {
+              const result = await signInWithEmailLink(
+                auth,
+                email?.toString(),
+                location.href
+              );
+              if (result.user) {
+                const data = await saveUserData(
+                  name?.toString()!,
+                  email?.toString()!,
+                  phoneNumber?.toString()!,
+                  address?.toString()!,
+                  userType?.toString()!,
+                  `${photoURL
+                    ?.toString()
+                    .replace(
+                      "https://firebasestorage.googleapis.com/v0/b/indian-unique-medical-card.appspot.com/o/photos/",
+                      "https://firebasestorage.googleapis.com/v0/b/indian-unique-medical-card.appspot.com/o/photos%2F"
+                    )!}&token=${token?.toString()!}`
+                );
+                updateUserDataInLocalStorageAndState(data);
+              }
+            } catch (error) {
+              console.log(error);
+            }
+          }
         } else {
           getExistingUserData(email?.toString()!);
         }
@@ -76,7 +90,7 @@ const RegisterUser = () => {
 
   return (
     <motion.div
-      className={registerUserStyles.registerUser}
+      className={verifyStyles.verify}
       variants={pageAnimationVariants}
       initial="initial"
       animate="animate"
@@ -88,4 +102,4 @@ const RegisterUser = () => {
   );
 };
 
-export default RegisterUser;
+export default Verify;

@@ -2,13 +2,22 @@ import React from "react";
 import healthCardStyles from "../../../styles/components/dashboard/HealthCard.module.css";
 
 interface HealthCardProps {
+  id: string;
   issue: string;
   fees?: number;
   medicines?: number;
   date: string;
+  patientID?: string;
 }
 
-const HealthCard = ({ issue, fees, medicines, date }: HealthCardProps) => {
+const HealthCard = ({
+  id,
+  issue,
+  fees,
+  medicines,
+  date,
+  patientID,
+}: HealthCardProps) => {
   return (
     <div className={healthCardStyles.healthCard}>
       <h4 className={healthCardStyles.issue}>Issue- {issue}</h4>

@@ -16,7 +16,7 @@ export const getStaticProps = async () => {
   return {
     props: {
       users: data.data,
-      revalidate: true,
+      revalidate: 30,
     },
   };
 };
@@ -58,7 +58,7 @@ const Doctor = ({ users }: DoctorIndexProps) => {
           type="text"
           value={searchString}
           placeholder="Search by IUMC ID, Name, Email or Phone number."
-          onChange={(e) => setSearchString(e.target.value.trim())}
+          onChange={(e) => setSearchString(e.target.value)}
         />
       </div>
       <div className={doctorStyles.users}>
@@ -74,7 +74,7 @@ const Doctor = ({ users }: DoctorIndexProps) => {
           )
           .map((user, index) => (
             <Link href={`/patient/${user.id}`} key={index}>
-              <a className={doctorStyles.user}>
+              <a className={doctorStyles.user} key={user?.id}>
                 <Avatar
                   className={doctorStyles.avatar}
                   alt={

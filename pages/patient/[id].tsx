@@ -26,7 +26,11 @@ import HealthCard from "../../src/components/dashboard/HealthCard";
 import { useStateValue } from "../../src/context/StateProvider";
 import { db } from "../../src/services/firebase";
 import dashboardStyles from "../../styles/pages/dashboard/Dashboard.module.css";
-import { updateMedicalData } from "../../src/services/firebaseUtils";
+import {
+  getMedicalDataOfUserID,
+  getUserDataFromID,
+  updateMedicalData,
+} from "../../src/services/firebaseUtils";
 import { Alert } from "@material-ui/lab";
 import { TransitionProps } from "@material-ui/core/transitions";
 import { motion } from "framer-motion";
@@ -93,12 +97,6 @@ const Patient = () => {
     photoURL: string;
     address: string;
     userType: string;
-    medicalData: {
-      issue: string;
-      fees: number;
-      medicines: number;
-      on: any;
-    }[];
   }>();
   const [chartData, setChartData] = useState<{
     labels: string[];
@@ -109,34 +107,46 @@ const Patient = () => {
   const [fees, setFees] = useState("");
   const [medicines, setMedicines] = useState("");
   const [loading, setLoading] = useState(false);
+  const [medicalData, setMedicalData] = useState<
+    {
+      id: string;
+      issue: any;
+      fees: any;
+      medicines: any;
+      on: any;
+      patientID: any;
+    }[]
+  >();
+
+  const loadLatestMedicalData = () => {
+    setLoading(true);
+    getMedicalDataOfUserID(router.query.id!.toString()).then((data) => {
+      setMedicalData(data);
+      const response = getChartData(data);
+      setChartData(response);
+      setLoading(false);
+    });
+  };
 
   useEffect(() => {
-    var unSubscribe = () => {};
     if (user) {
       if (user?.userType !== "doctor") {
         router.push("/dashboard");
       } else {
-        unSubscribe = onSnapshot(
-          doc(db, "Users", router.query.id!.toString()),
-          (doc) => {
-            setPatient({
-              id: doc.id,
-              name: doc.data()?.name,
-              email: doc.data()?.email,
-              phoneNumber: doc.data()?.phoneNumber,
-              address: doc.data()?.address,
-              userType: doc.data()?.userType,
-              medicalData: doc.data()?.medicalData,
-              photoURL: doc.data()?.photoURL,
-            });
-            const chartData = getChartData(doc.data()?.medicalData);
-            setChartData(chartData);
-          }
-        );
+        getUserDataFromID(router.query!.id?.toString()!).then((data) => {
+          setPatient({
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            phoneNumber: data.phoneNumber,
+            address: data.address,
+            userType: data.userType,
+            photoURL: data.photoURL,
+          });
+          loadLatestMedicalData();
+        });
       }
     }
-
-    return () => unSubscribe();
   }, [user]);
 
   const update = async () => {
@@ -158,10 +168,10 @@ const Patient = () => {
     } else {
       setLoading(true);
       await updateMedicalData(
-        router.query.id?.toString()!,
         issue,
         Number(fees),
-        Number(medicines)
+        Number(medicines),
+        router.query.id?.toString()!
       );
       setLoading(false);
       setAlertMessage("Health data updated successfully!");
@@ -170,6 +180,7 @@ const Patient = () => {
       setIssue("");
       setFees("");
       setMedicines("");
+      router.reload();
     }
     setShowAlertMessage(true);
   };
@@ -305,9 +316,9 @@ const Patient = () => {
         </div>
         <div className={dashboardStyles.healthDataContainer}>
           <h2 className={dashboardStyles.title}>Health data</h2>
-          {patient?.medicalData.length ? (
-            patient?.medicalData
-              .sort(
+          {medicalData?.length ? (
+            medicalData
+              ?.sort(
                 (
                   a: {
                     issue: string;
@@ -325,13 +336,15 @@ const Patient = () => {
               )
               .map(
                 (data: {
+                  id: string;
                   on: string;
                   fees: number;
                   medicines: number;
                   issue: string;
                 }) => (
                   <HealthCard
-                    key={data?.on.toString()}
+                    key={data?.id}
+                    id={data?.id}
                     date={data?.on.toString()}
                     issue={data?.issue}
                   />
@@ -343,7 +356,7 @@ const Patient = () => {
         </div>
       </div>
       <div className={dashboardStyles.graphContainer}>
-        {patient?.medicalData.length ? (
+        {medicalData?.length ? (
           <>
             <div className={dashboardStyles.chart}>
               <Doughnut data={chartData} />

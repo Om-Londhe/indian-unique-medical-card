@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import React, { ReactElement, useEffect, useState } from "react";
-import { doc, onSnapshot } from "@firebase/firestore";
+import { collection, doc, onSnapshot } from "@firebase/firestore";
 import { actionTypes } from "../context/reducer";
 import { useStateValue } from "../context/StateProvider";
 import { db } from "../services/firebase";
@@ -21,7 +21,7 @@ const Layout = ({ children }: LayoutProps) => {
       if (
         router.pathname === "/" ||
         router.pathname === "/auth/register" ||
-        router.pathname === "/auth/registerUser"
+        router.pathname === "/auth/verify"
       ) {
         router.push("/dashboard").then(() => setUserStatus("exist"));
       }
@@ -29,7 +29,6 @@ const Layout = ({ children }: LayoutProps) => {
       const id = localStorage.getItem("Indian Unique Medical Card ID");
       if (id) {
         unSubscribe = onSnapshot(doc(db, "Users", id), (doc) => {
-          console.log(doc.data());
           dispatch({
             type: actionTypes.SET_USER,
             user: {
@@ -39,7 +38,6 @@ const Layout = ({ children }: LayoutProps) => {
               phoneNumber: doc.data()?.phoneNumber,
               address: doc.data()?.address,
               userType: doc.data()?.userType,
-              medicalData: doc.data()?.medicalData,
               photoURL: doc.data()?.photoURL,
             },
           });

@@ -24,11 +24,15 @@ const Transition = forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+export type Color = "success" | "info" | "warning" | "error";
+
 const Entry = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [severity, setSeverity] = useState<Color>("error");
 
   const login = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,13 +41,23 @@ const Entry = () => {
       if (await checkIfEmailExist(email)) {
         await sendEmailVerificationLinkForLoggingIn(email);
         setLoading(false);
+        setAlertMessage(
+          `Verify your email by clicking link sent to you on ${email}`
+        );
+        setSeverity("success");
+      } else {
+        setAlertMessage(
+          `The email: ${email} does not exist, kindly register yourself.`
+        );
+        setSeverity("error");
       }
+      setLoading(false);
       setOpenAlert(true);
     }
   };
 
   return (
-    <div className={entryStyles.container}>
+    <div className={entryStyles.container} id="entry">
       <div className={entryStyles.main}>
         <form onSubmit={login} className={entryStyles.loginInputField}>
           <input
@@ -83,10 +97,10 @@ const Entry = () => {
       >
         <Alert
           onClose={() => setOpenAlert(false)}
-          severity={"success"}
+          severity={severity}
           style={{ width: "100%" }}
         >
-          Verify your email by clicking link sent to you on {email}
+          {alertMessage}
         </Alert>
       </Snackbar>
     </div>

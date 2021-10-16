@@ -1,4 +1,4 @@
-.registerUser {
+.verify {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -7,7 +7,7 @@
   width: 100vw;
 }
 
-.registerUser p {
+.verify p {
   font-family: "Poppins", sans-serif;
   font-size: 16px;
   margin-top: 11px;
