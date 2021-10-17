@@ -56,17 +56,15 @@ const getChartData = (
   const labels: string[] = [];
   const costData: number[] = [];
   const backgroundColor: string[] = [];
-  userMedicalData
-    .sort((a, b) => Date.parse(a?.on) - Date.parse(b?.on))
-    .forEach((medicalData) => {
-      labels.push(medicalData.issue);
-      costData.push(medicalData.fees + medicalData.medicines);
-      backgroundColor.push(
-        `rgb(${Math.floor(Math.random() * 244)}, ${Math.floor(
-          Math.random() * 244
-        )}, ${Math.floor(Math.random() * 244)})`
-      );
-    });
+  userMedicalData.forEach((medicalData) => {
+    labels.push(medicalData.issue);
+    costData.push(medicalData.fees + medicalData.medicines);
+    backgroundColor.push(
+      `rgb(${Math.floor(Math.random() * 244)}, ${Math.floor(
+        Math.random() * 244
+      )}, ${Math.floor(Math.random() * 244)})`
+    );
+  });
 
   return {
     labels,
@@ -102,11 +100,13 @@ const Patient = () => {
     labels: string[];
     datasets: { data: number[] }[];
   }>({ labels: [], datasets: [{ data: [] }] });
+  const [filter, setFilter] = useState("monthly");
   const [openUpdateForm, setOpenUpdateForm] = useState(false);
   const [issue, setIssue] = useState("");
   const [fees, setFees] = useState("");
   const [medicines, setMedicines] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingHealthData, setLoadingHealthData] = useState(false);
   const [medicalData, setMedicalData] = useState<
     {
       id: string;
@@ -119,12 +119,12 @@ const Patient = () => {
   >();
 
   const loadLatestMedicalData = () => {
-    setLoading(true);
-    getMedicalDataOfUserID(router.query.id!.toString()).then((data) => {
+    setLoadingHealthData(true);
+    getMedicalDataOfUserID(router.query.id!.toString(), filter).then((data) => {
       setMedicalData(data);
       const response = getChartData(data);
       setChartData(response);
-      setLoading(false);
+      setLoadingHealthData(false);
     });
   };
 
@@ -143,11 +143,16 @@ const Patient = () => {
             userType: data.userType,
             photoURL: data.photoURL,
           });
-          loadLatestMedicalData();
         });
       }
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadLatestMedicalData();
+    }
+  }, [user, filter]);
 
   const update = async () => {
     if (issue.length < 2) {
@@ -261,7 +266,7 @@ const Patient = () => {
       </Dialog>
       <div className={dashboardStyles.profileTextAndHealthDataContainer}>
         <div className={dashboardStyles.backButton}>
-          <IconButton onClick={() => router.push("/doctor")}>
+          <IconButton onClick={router.back} style={{ borderRadius: 7 }}>
             <ChevronLeftRounded />
             &nbsp;<span>Go back</span>
           </IconButton>
@@ -315,48 +320,46 @@ const Patient = () => {
           )}
         </div>
         <div className={dashboardStyles.healthDataContainer}>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className={dashboardStyles.filter}
+          >
+            <option value="monthly">Monthly</option>
+            <option value="3months">3 Months</option>
+            <option value="6month">6 Months</option>
+            <option value="yearly">Yearly</option>
+            <option value="lifetime">Lifetime</option>
+          </select>
           <h2 className={dashboardStyles.title}>Health data</h2>
-          {medicalData?.length ? (
-            medicalData
-              ?.sort(
-                (
-                  a: {
-                    issue: string;
-                    fees: number;
-                    medicines: number;
-                    on: any;
-                  },
-                  b: {
-                    issue: string;
-                    fees: number;
-                    medicines: number;
-                    on: any;
-                  }
-                ) => Date.parse(b?.on) - Date.parse(a?.on)
+          {loadingHealthData ? (
+            <CircularProgress color="secondary" size={24} />
+          ) : medicalData?.length ? (
+            medicalData.map(
+              (data: {
+                id: string;
+                on: number;
+                fees: number;
+                medicines: number;
+                issue: string;
+              }) => (
+                <HealthCard
+                  key={data?.id}
+                  id={data?.id}
+                  date={data?.on}
+                  issue={data?.issue}
+                />
               )
-              .map(
-                (data: {
-                  id: string;
-                  on: string;
-                  fees: number;
-                  medicines: number;
-                  issue: string;
-                }) => (
-                  <HealthCard
-                    key={data?.id}
-                    id={data?.id}
-                    date={data?.on.toString()}
-                    issue={data?.issue}
-                  />
-                )
-              )
+            )
           ) : (
             <p style={{ color: "white" }}>No previous records</p>
           )}
         </div>
       </div>
       <div className={dashboardStyles.graphContainer}>
-        {medicalData?.length ? (
+        {loadingHealthData ? (
+          <CircularProgress color="secondary" size={24} />
+        ) : medicalData?.length ? (
           <>
             <div className={dashboardStyles.chart}>
               <Doughnut data={chartData} />

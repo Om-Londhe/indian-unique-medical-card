@@ -35,20 +35,18 @@ const getChartData = (
   const backgroundColor: string[] = [];
   let feesArray: number[] = [];
   let medicinesArray: number[] = [];
-  userMedicalData
-    .sort((a, b) => Date.parse(a?.on) - Date.parse(b?.on))
-    .forEach((medicalData) => {
-      labels.push(medicalData.issue);
-      costData.push(medicalData.fees + medicalData.medicines);
-      backgroundColor.push(
-        `rgb(${Math.floor(Math.random() * 244)}, ${Math.floor(
-          Math.random() * 244
-        )}, ${Math.floor(Math.random() * 244)})`
-      );
+  userMedicalData.forEach((medicalData) => {
+    labels.push(medicalData.issue);
+    costData.push(medicalData.fees + medicalData.medicines);
+    backgroundColor.push(
+      `rgb(${Math.floor(Math.random() * 244)}, ${Math.floor(
+        Math.random() * 244
+      )}, ${Math.floor(Math.random() * 244)})`
+    );
 
-      feesArray.push(Number(medicalData?.fees));
-      medicinesArray.push(Number(medicalData?.medicines));
-    });
+    feesArray.push(Number(medicalData?.fees));
+    medicinesArray.push(Number(medicalData?.medicines));
+  });
   const fees = _.sum(feesArray);
   const medicines = _.sum(medicinesArray);
   return [
@@ -75,7 +73,8 @@ const Dashboard = () => {
   const router = useRouter();
   const [{ user }] = useStateValue();
   const [openAlert, setOpenAlert] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loadingHealthData, setLoadingHealthData] = useState(false);
+  const [filter, setFilter] = useState("monthly");
   const [expenditureData, setExpenditureData] = useState<any>({
     fees: 0,
     medicines: 0,
@@ -94,13 +93,13 @@ const Dashboard = () => {
   >();
 
   const loadLatestMedicalData = () => {
-    setLoading(true);
-    getMedicalDataOfUserID(user.id).then((data) => {
+    setLoadingHealthData(true);
+    getMedicalDataOfUserID(user.id, filter).then((data) => {
       setMedicalData(data);
       const response = getChartData(data);
       setChartData(response[0]);
       setExpenditureData(response[1]);
-      setLoading(false);
+      setLoadingHealthData(false);
     });
   };
 
@@ -108,7 +107,7 @@ const Dashboard = () => {
     if (user) {
       loadLatestMedicalData();
     }
-  }, [user]);
+  }, [user, filter]);
 
   const copyID = () => {
     navigator.clipboard.writeText(user?.id);
@@ -173,49 +172,41 @@ const Dashboard = () => {
           )}
         </div>
         <div className={dashboardStyles.healthDataContainer}>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className={dashboardStyles.filter}
+          >
+            <option value="monthly">Monthly</option>
+            <option value="3months">3 Months</option>
+            <option value="6month">6 Months</option>
+            <option value="yearly">Yearly</option>
+            <option value="lifetime">Lifetime</option>
+          </select>
           <h2 className={dashboardStyles.title}>Health data</h2>
-          {medicalData?.length ? (
-            medicalData
-              ?.sort(
-                (
-                  a: {
-                    id: string;
-                    issue: string;
-                    fees: number;
-                    medicines: number;
-                    on: any;
-                    patientID: string;
-                  },
-                  b: {
-                    id: string;
-                    issue: string;
-                    fees: number;
-                    medicines: number;
-                    on: any;
-                    patientID: string;
-                  }
-                ) => Date.parse(b?.on) - Date.parse(a?.on)
+          {loadingHealthData ? (
+            <CircularProgress color="secondary" size={24} />
+          ) : medicalData?.length ? (
+            medicalData.map(
+              (data: {
+                id: string;
+                on: number;
+                fees: number;
+                medicines: number;
+                issue: string;
+                patientID: string;
+              }) => (
+                <HealthCard
+                  key={data.id}
+                  id={data.id}
+                  date={data?.on}
+                  fees={data?.fees}
+                  medicines={data?.medicines}
+                  issue={data?.issue}
+                  patientID={data?.patientID}
+                />
               )
-              .map(
-                (data: {
-                  id: string;
-                  on: string;
-                  fees: number;
-                  medicines: number;
-                  issue: string;
-                  patientID: string;
-                }) => (
-                  <HealthCard
-                    key={data.id}
-                    id={data.id}
-                    date={data?.on.toString()}
-                    fees={data?.fees}
-                    medicines={data?.medicines}
-                    issue={data?.issue}
-                    patientID={data?.patientID}
-                  />
-                )
-              )
+            )
           ) : (
             <p style={{ color: "white" }}>No previous records</p>
           )}
@@ -232,7 +223,9 @@ const Dashboard = () => {
             Total- ₹{expenditureData.totalExpenditure}
           </p>
         </div>
-        {medicalData?.length ? (
+        {loadingHealthData ? (
+          <CircularProgress color="secondary" size={24} />
+        ) : medicalData?.length ? (
           <>
             <div className={dashboardStyles.chart}>
               <Doughnut data={chartData} />

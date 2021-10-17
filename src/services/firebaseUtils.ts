@@ -7,6 +7,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
   updateDoc,
   where,
@@ -99,24 +100,119 @@ export const updateMedicalData = async (
     issue,
     fees,
     medicines,
-    on: new Date().toLocaleString(),
+    on: new Date().getTime(),
     patientID,
   });
 };
 
-export const getMedicalDataOfUserID = async (userID: string) => {
-  return await (
-    await getDocs(
-      query(collection(db, "MedicalData"), where("patientID", "==", userID))
-    )
-  ).docs.map((doc) => ({
-    id: doc.id,
-    issue: doc.data().issue,
-    fees: doc.data().fees,
-    medicines: doc.data().medicines,
-    on: doc.data().on,
-    patientID: doc.data().patientID,
-  }));
+export const getMedicalDataOfUserID = async (
+  userID: string,
+  filter: string
+) => {
+  if (filter === "lifetime") {
+    return await (
+      await getDocs(
+        query(
+          collection(db, "MedicalData"),
+          where("patientID", "==", userID),
+          orderBy("on", "desc")
+        )
+      )
+    ).docs.map((doc) => ({
+      id: doc.id,
+      issue: doc.data().issue,
+      fees: doc.data().fees,
+      medicines: doc.data().medicines,
+      on: doc.data().on,
+      patientID: doc.data().patientID,
+    }));
+  } else {
+    var filterDate: number;
+    if (filter === "yearly") {
+      filterDate = new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1)
+      ).getTime();
+    } else if (filter === "6months") {
+      filterDate = new Date(
+        new Date().setMonth(new Date().getMonth() - 6)
+      ).getTime();
+    } else if (filter === "3months") {
+      filterDate = new Date(
+        new Date().setMonth(new Date().getMonth() - 3)
+      ).getTime();
+    } else {
+      filterDate = new Date(
+        new Date().setMonth(new Date().getMonth() - 1)
+      ).getTime();
+    }
+    return await (
+      await getDocs(
+        query(
+          collection(db, "MedicalData"),
+          where("patientID", "==", userID),
+          where("on", ">=", filterDate),
+          orderBy("on", "desc")
+        )
+      )
+    ).docs.map((doc) => ({
+      id: doc.id,
+      issue: doc.data().issue,
+      fees: doc.data().fees,
+      medicines: doc.data().medicines,
+      on: doc.data().on,
+      patientID: doc.data().patientID,
+    }));
+  }
+};
+
+export const getMedicalDataOfAllCitizens = async (filter: string) => {
+  if (filter === "lifetime") {
+    return await (
+      await getDocs(query(collection(db, "MedicalData"), orderBy("on", "desc")))
+    ).docs.map((doc) => ({
+      id: doc.id,
+      issue: doc.data().issue,
+      fees: doc.data().fees,
+      medicines: doc.data().medicines,
+      on: doc.data().on,
+      patientID: doc.data().patientID,
+    }));
+  } else {
+    var filterDate: number;
+    if (filter === "yearly") {
+      filterDate = new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1)
+      ).getTime();
+    } else if (filter === "6months") {
+      filterDate = new Date(
+        new Date().setMonth(new Date().getMonth() - 6)
+      ).getTime();
+    } else if (filter === "3months") {
+      filterDate = new Date(
+        new Date().setMonth(new Date().getMonth() - 3)
+      ).getTime();
+    } else {
+      filterDate = new Date(
+        new Date().setMonth(new Date().getMonth() - 1)
+      ).getTime();
+    }
+    return await (
+      await getDocs(
+        query(
+          collection(db, "MedicalData"),
+          where("on", ">=", filterDate),
+          orderBy("on", "desc")
+        )
+      )
+    ).docs.map((doc) => ({
+      id: doc.id,
+      issue: doc.data().issue,
+      fees: doc.data().fees,
+      medicines: doc.data().medicines,
+      on: doc.data().on,
+      patientID: doc.data().patientID,
+    }));
+  }
 };
 
 export const getUserDataFromID = async (id: string) => {

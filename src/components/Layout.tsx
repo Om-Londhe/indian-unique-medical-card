@@ -27,7 +27,9 @@ const Layout = ({ children }: LayoutProps) => {
       }
     } else {
       const id = localStorage.getItem("Indian Unique Medical Card ID");
-      if (id) {
+      if (router?.pathname.startsWith("/gov")) {
+        setUserStatus("gov");
+      } else if (id) {
         unSubscribe = onSnapshot(doc(db, "Users", id), (doc) => {
           dispatch({
             type: actionTypes.SET_USER,

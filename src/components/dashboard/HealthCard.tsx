@@ -6,7 +6,7 @@ interface HealthCardProps {
   issue: string;
   fees?: number;
   medicines?: number;
-  date: string;
+  date: number;
   patientID?: string;
 }
 
@@ -34,7 +34,9 @@ const HealthCard = ({
       ) : (
         <></>
       )}
-      <h4 className={healthCardStyles.date}>On {date}</h4>
+      <h4 className={healthCardStyles.date}>
+        On {new Date(date).toLocaleString()}
+      </h4>
     </div>
   );
 };

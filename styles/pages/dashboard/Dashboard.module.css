@@ -28,6 +28,22 @@
   border: 1px solid #3e2744;
 }
 
+.titleAndFilter {
+  display: flex;
+  align-items: center;
+}
+
+.filter {
+  background: white;
+  padding-left: 7px;
+  padding-right: 7px;
+  font-size: 18px;
+  border-radius: 7px;
+  margin-bottom: 4px;
+  outline: none;
+  border: 1px solid lightgrey;
+}
+
 .graphContainer {
   padding: 7px;
   padding-left: 11px;

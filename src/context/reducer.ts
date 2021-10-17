@@ -8,23 +8,15 @@ export const initialState: {
     userType: string;
     photoURL: string;
   };
-  medicalData: {
-    issue: string;
-    fees: number;
-    medicines: number;
-    on: any;
-    patientID: string;
-  }[];
+  verified: boolean;
 } = {
   user: null,
-  medicalData: [
-    { issue: "", fees: 0, medicines: 0, on: new Date(), patientID: "" },
-  ],
+  verified: false,
 };
 
 export const actionTypes = {
   SET_USER: "SET_USER",
-  SET_MEDICAL_DATA: "SET_MEDICAL_DATA",
+  SET_VERIFIED: "SET_VERIFIED",
 };
 
 const reducer = (state: any, action: any) => {
@@ -34,10 +26,10 @@ const reducer = (state: any, action: any) => {
         ...state,
         user: action.user,
       };
-    case actionTypes.SET_MEDICAL_DATA:
+    case actionTypes.SET_VERIFIED:
       return {
         ...state,
-        medicalData: action.medicalData,
+        verified: action.verified,
       };
     default:
       return state;
