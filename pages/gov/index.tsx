@@ -11,6 +11,7 @@ import { FilterListRounded, SearchRounded } from "@material-ui/icons";
 import { getMedicalDataOfAllCitizens } from "../../src/services/firebaseUtils";
 import { CircularProgress, Fab } from "@material-ui/core";
 import Filter from "../../src/components/gov/Filter";
+import { ICity, IState } from "country-state-city/dist/lib/interface";
 
 interface MedicalDataType {
   id: string;
@@ -19,6 +20,8 @@ interface MedicalDataType {
   medicines: number;
   issue: string;
   patientID: string;
+  state: string;
+  city: string;
 }
 
 const getChartData = (
@@ -67,8 +70,8 @@ const Gov = () => {
   const [citizensMedicalData, setCitizensMedicalData] =
     useState<MedicalDataType[]>();
   const [frequencyFilter, setFrequencyFilter] = useState("monthly");
-  const [cityFilter, setCityFilter] = useState("");
-  const [stateFilter, setStateFilter] = useState("");
+  const [stateFilter, setStateFilter] = useState<IState | null>(null);
+  const [cityFilter, setCityFilter] = useState<ICity | null>(null);
   const [loading, setLoading] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
 
@@ -84,7 +87,14 @@ const Gov = () => {
   useEffect(() => {
     if (verified) {
       setLoading(true);
-      getMedicalDataOfAllCitizens(frequencyFilter).then((snapshot) => {
+      if (!stateFilter) {
+        setCityFilter(null);
+      }
+      getMedicalDataOfAllCitizens(
+        frequencyFilter,
+        stateFilter?.name,
+        cityFilter?.name
+      ).then((snapshot) => {
         setCitizensMedicalData(
           snapshot.map<MedicalDataType>(
             (doc): MedicalDataType => ({
@@ -94,13 +104,15 @@ const Gov = () => {
               medicines: Number(doc?.medicines.toString()),
               issue: doc?.issue.toString(),
               patientID: doc?.patientID.toString(),
+              state: doc?.state.toString(),
+              city: doc?.city.toString(),
             })
           )
         );
         setLoading(false);
       });
     }
-  }, [verified, frequencyFilter]);
+  }, [verified, frequencyFilter, stateFilter, cityFilter]);
 
   useEffect(() => {
     citizensMedicalData && setChartData(getChartData(citizensMedicalData!));

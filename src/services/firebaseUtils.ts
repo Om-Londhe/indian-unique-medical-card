@@ -94,7 +94,9 @@ export const updateMedicalData = async (
   issue: string,
   fees: number,
   medicines: number,
-  patientID: string
+  patientID: string,
+  state: string,
+  city: string
 ) => {
   await addDoc(collection(db, "MedicalData"), {
     issue,
@@ -102,6 +104,8 @@ export const updateMedicalData = async (
     medicines,
     on: new Date().getTime(),
     patientID,
+    state,
+    city,
   });
 };
 
@@ -125,6 +129,8 @@ export const getMedicalDataOfUserID = async (
       medicines: doc.data().medicines,
       on: doc.data().on,
       patientID: doc.data().patientID,
+      state: doc.data().state,
+      city: doc.data().city,
     }));
   } else {
     var filterDate: number;
@@ -161,12 +167,59 @@ export const getMedicalDataOfUserID = async (
       medicines: doc.data().medicines,
       on: doc.data().on,
       patientID: doc.data().patientID,
+      state: doc.data().state,
+      city: doc.data().city,
     }));
   }
 };
 
-export const getMedicalDataOfAllCitizens = async (filter: string) => {
-  if (filter === "lifetime") {
+export const getMedicalDataOfAllCitizens = async (
+  frequencyFilter: string,
+  stateFilter: string | undefined,
+  cityFilter: string | undefined
+) => {
+  if (frequencyFilter === "lifetime") {
+    if (stateFilter) {
+      if (cityFilter) {
+        return await (
+          await getDocs(
+            query(
+              collection(db, "MedicalData"),
+              where("state", "==", stateFilter),
+              where("city", "==", cityFilter),
+              orderBy("on", "desc")
+            )
+          )
+        ).docs.map((doc) => ({
+          id: doc.id,
+          issue: doc.data().issue,
+          fees: doc.data().fees,
+          medicines: doc.data().medicines,
+          on: doc.data().on,
+          patientID: doc.data().patientID,
+          state: doc.data().state,
+          city: doc.data().city,
+        }));
+      }
+      return await (
+        await getDocs(
+          query(
+            collection(db, "MedicalData"),
+            where("state", "==", stateFilter),
+            orderBy("on", "desc")
+          )
+        )
+      ).docs.map((doc) => ({
+        id: doc.id,
+        issue: doc.data().issue,
+        fees: doc.data().fees,
+        medicines: doc.data().medicines,
+        on: doc.data().on,
+        patientID: doc.data().patientID,
+        state: doc.data().state,
+        city: doc.data().city,
+      }));
+    }
     return await (
       await getDocs(query(collection(db, "MedicalData"), orderBy("on", "desc")))
     ).docs.map((doc) => ({
@@ -176,31 +229,76 @@ export const getMedicalDataOfAllCitizens = async (filter: string) => {
       medicines: doc.data().medicines,
       on: doc.data().on,
       patientID: doc.data().patientID,
+      state: doc.data().state,
+      city: doc.data().city,
     }));
   } else {
-    var filterDate: number;
-    if (filter === "yearly") {
-      filterDate = new Date(
+    var frequencyFilterDate: number;
+    if (frequencyFilter === "yearly") {
+      frequencyFilterDate = new Date(
         new Date().setFullYear(new Date().getFullYear() - 1)
       ).getTime();
-    } else if (filter === "6months") {
-      filterDate = new Date(
+    } else if (frequencyFilter === "6months") {
+      frequencyFilterDate = new Date(
         new Date().setMonth(new Date().getMonth() - 6)
       ).getTime();
-    } else if (filter === "3months") {
-      filterDate = new Date(
+    } else if (frequencyFilter === "3months") {
+      frequencyFilterDate = new Date(
         new Date().setMonth(new Date().getMonth() - 3)
       ).getTime();
     } else {
-      filterDate = new Date(
+      frequencyFilterDate = new Date(
         new Date().setMonth(new Date().getMonth() - 1)
       ).getTime();
+    }
+    if (stateFilter) {
+      if (cityFilter) {
+        return await (
+          await getDocs(
+            query(
+              collection(db, "MedicalData"),
+              where("on", ">=", frequencyFilterDate),
+              where("state", "==", stateFilter),
+              where("city", "==", cityFilter),
+              orderBy("on", "desc")
+            )
+          )
+        ).docs.map((doc) => ({
+          id: doc.id,
+          issue: doc.data().issue,
+          fees: doc.data().fees,
+          medicines: doc.data().medicines,
+          on: doc.data().on,
+          patientID: doc.data().patientID,
+          state: doc.data().state,
+          city: doc.data().city,
+        }));
+      }
+      return await (
+        await getDocs(
+          query(
+            collection(db, "MedicalData"),
+            where("on", ">=", frequencyFilterDate),
+            where("state", "==", stateFilter),
+            orderBy("on", "desc")
+          )
+        )
+      ).docs.map((doc) => ({
+        id: doc.id,
+        issue: doc.data().issue,
+        fees: doc.data().fees,
+        medicines: doc.data().medicines,
+        on: doc.data().on,
+        patientID: doc.data().patientID,
+        state: doc.data().state,
+        city: doc.data().city,
+      }));
     }
     return await (
       await getDocs(
         query(
           collection(db, "MedicalData"),
-          where("on", ">=", filterDate),
+          where("on", ">=", frequencyFilterDate),
           orderBy("on", "desc")
         )
       )
@@ -211,6 +309,8 @@ export const getMedicalDataOfAllCitizens = async (filter: string) => {
       medicines: doc.data().medicines,
       on: doc.data().on,
       patientID: doc.data().patientID,
+      state: doc.data().state,
+      city: doc.data().city,
     }));
   }
 };

@@ -11,6 +11,8 @@ import {
   Slide,
   Snackbar,
   TextField,
+  useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
 import {
   ChevronLeftRounded,
@@ -19,28 +21,26 @@ import {
   PhoneOutlined,
 } from "@material-ui/icons";
 import { useRouter } from "next/router";
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, Ref, useEffect, useState } from "react";
 import { Bar, Doughnut, Line, PolarArea } from "react-chartjs-2";
-import { doc, onSnapshot } from "@firebase/firestore";
 import HealthCard from "../../src/components/dashboard/HealthCard";
 import { useStateValue } from "../../src/context/StateProvider";
-import { db } from "../../src/services/firebase";
 import dashboardStyles from "../../styles/pages/dashboard/Dashboard.module.css";
 import {
   getMedicalDataOfUserID,
   getUserDataFromID,
   updateMedicalData,
 } from "../../src/services/firebaseUtils";
-import { Alert } from "@material-ui/lab";
+import { Alert, Autocomplete } from "@material-ui/lab";
 import { TransitionProps } from "@material-ui/core/transitions";
 import { motion } from "framer-motion";
 import { pageAnimationVariants } from "../../src/services/animationUtils";
+import { State, City } from "country-state-city";
+import { ICity, IState } from "country-state-city/dist/lib/interface";
 
 const Transition = forwardRef(function Transition(
-  props: TransitionProps & {
-    children?: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
+  props: TransitionProps & { children?: React.ReactElement<any, any> },
+  ref: Ref<unknown>
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -83,7 +83,7 @@ export type Color = "success" | "info" | "warning" | "error";
 
 const Patient = () => {
   const router = useRouter();
-  const [{ user }, dispatch] = useStateValue();
+  const [{ user, verified }, dispatch] = useStateValue();
   const [alertMessage, setAlertMessage] = useState("");
   const [severity, setSeverity] = useState<Color>("error");
   const [showAlertMessage, setShowAlertMessage] = useState(false);
@@ -100,13 +100,17 @@ const Patient = () => {
     labels: string[];
     datasets: { data: number[] }[];
   }>({ labels: [], datasets: [{ data: [] }] });
-  const [filter, setFilter] = useState("monthly");
+  const [frequencyFilter, setFrequencyFilter] = useState("monthly");
+  const [stateFilter, setStateFilter] = useState<IState | null>(null);
+  const [cityFilter, setCityFilter] = useState<ICity | null>(null);
   const [openUpdateForm, setOpenUpdateForm] = useState(false);
   const [issue, setIssue] = useState("");
   const [fees, setFees] = useState("");
   const [medicines, setMedicines] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingHealthData, setLoadingHealthData] = useState(false);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [medicalData, setMedicalData] = useState<
     {
       id: string;
@@ -115,17 +119,21 @@ const Patient = () => {
       medicines: any;
       on: any;
       patientID: any;
+      state: any;
+      city: any;
     }[]
   >();
 
   const loadLatestMedicalData = () => {
     setLoadingHealthData(true);
-    getMedicalDataOfUserID(router.query.id!.toString(), filter).then((data) => {
-      setMedicalData(data);
-      const response = getChartData(data);
-      setChartData(response);
-      setLoadingHealthData(false);
-    });
+    getMedicalDataOfUserID(router.query.id!.toString(), frequencyFilter).then(
+      (data) => {
+        setMedicalData(data);
+        const response = getChartData(data);
+        setChartData(response);
+        setLoadingHealthData(false);
+      }
+    );
   };
 
   useEffect(() => {
@@ -152,7 +160,7 @@ const Patient = () => {
     if (user) {
       loadLatestMedicalData();
     }
-  }, [user, filter]);
+  }, [user, frequencyFilter]);
 
   const update = async () => {
     if (issue.length < 2) {
@@ -170,13 +178,25 @@ const Patient = () => {
         "Enter the fees that this patient spent on medicines suggested by you."
       );
       setSeverity("error");
+    } else if (!stateFilter) {
+      setAlertMessage(
+        "Please select the state in which you are checking the patient up."
+      );
+      setSeverity("error");
+    } else if (!cityFilter) {
+      setAlertMessage(
+        `Please select the city of ${stateFilter.name} in which you are checking the patient up.`
+      );
+      setSeverity("error");
     } else {
       setLoading(true);
       await updateMedicalData(
         issue,
         Number(fees),
         Number(medicines),
-        router.query.id?.toString()!
+        router.query.id?.toString()!,
+        stateFilter.name,
+        cityFilter.name
       );
       setLoading(false);
       setAlertMessage("Health data updated successfully!");
@@ -185,7 +205,7 @@ const Patient = () => {
       setIssue("");
       setFees("");
       setMedicines("");
-      router.reload();
+      loadLatestMedicalData();
     }
     setShowAlertMessage(true);
   };
@@ -203,6 +223,7 @@ const Patient = () => {
       exit="exit"
     >
       <Dialog
+        fullScreen={fullScreen}
         TransitionComponent={Transition}
         open={openUpdateForm}
         onClose={() => setOpenUpdateForm(false)}
@@ -258,6 +279,48 @@ const Patient = () => {
               )
             }
           />
+          <Autocomplete
+            options={State.getStatesOfCountry("IN")}
+            getOptionLabel={(option: IState) => option.name}
+            value={stateFilter}
+            onChange={(event: any, newValue: IState | null) => {
+              setStateFilter(newValue);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                margin="dense"
+                label="State"
+                type="text"
+                fullWidth
+                variant="standard"
+                color="secondary"
+              />
+            )}
+          />
+          {stateFilter ? (
+            <Autocomplete
+              options={City.getCitiesOfState("IN", stateFilter?.isoCode)}
+              getOptionLabel={(option: ICity) => option.name}
+              value={cityFilter}
+              onChange={(event: any, newValue: ICity | null) => {
+                setCityFilter(newValue);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  margin="dense"
+                  label="City"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  color="secondary"
+                />
+              )}
+            />
+          ) : (
+            <></>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenUpdateForm(false)}>Cancel</Button>
@@ -308,7 +371,7 @@ const Patient = () => {
             &nbsp;&nbsp;
             <span>{patient?.address}</span>
           </h3>
-          {patient?.userType === "doctor" ? (
+          {patient?.userType === "doctor" && !verified ? (
             <button
               className={dashboardStyles.doctorButton}
               onClick={() => setOpenUpdateForm(true)}
@@ -321,8 +384,8 @@ const Patient = () => {
         </div>
         <div className={dashboardStyles.healthDataContainer}>
           <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            value={frequencyFilter}
+            onChange={(e) => setFrequencyFilter(e.target.value)}
             className={dashboardStyles.filter}
           >
             <option value="monthly">Monthly</option>
@@ -342,12 +405,16 @@ const Patient = () => {
                 fees: number;
                 medicines: number;
                 issue: string;
+                state: string;
+                city: string;
               }) => (
                 <HealthCard
                   key={data?.id}
                   id={data?.id}
                   date={data?.on}
                   issue={data?.issue}
+                  state={data?.state}
+                  city={data?.city}
                 />
               )
             )

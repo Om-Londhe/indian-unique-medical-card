@@ -8,6 +8,8 @@ interface HealthCardProps {
   medicines?: number;
   date: number;
   patientID?: string;
+  state?: string;
+  city?: string;
 }
 
 const HealthCard = ({
@@ -17,6 +19,8 @@ const HealthCard = ({
   medicines,
   date,
   patientID,
+  state,
+  city,
 }: HealthCardProps) => {
   return (
     <div className={healthCardStyles.healthCard}>
@@ -37,6 +41,7 @@ const HealthCard = ({
       <h4 className={healthCardStyles.date}>
         On {new Date(date).toLocaleString()}
       </h4>
+      <h4 className={healthCardStyles.date}>at {`${city}, ${state}`}</h4>
     </div>
   );
 };

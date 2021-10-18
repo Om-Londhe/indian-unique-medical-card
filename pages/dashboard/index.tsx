@@ -89,6 +89,8 @@ const Dashboard = () => {
       medicines: any;
       on: any;
       patientID: any;
+      state: any;
+      city: any;
     }[]
   >();
 
@@ -195,6 +197,8 @@ const Dashboard = () => {
                 medicines: number;
                 issue: string;
                 patientID: string;
+                state: string;
+                city: string;
               }) => (
                 <HealthCard
                   key={data.id}
@@ -204,6 +208,8 @@ const Dashboard = () => {
                   medicines={data?.medicines}
                   issue={data?.issue}
                   patientID={data?.patientID}
+                  state={data?.state}
+                  city={data?.city}
                 />
               )
             )

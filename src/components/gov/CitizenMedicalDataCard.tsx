@@ -10,6 +10,8 @@ interface MedicalDataType {
   medicines: number;
   issue: string;
   patientID: string;
+  state: string;
+  city: string;
 }
 
 interface CitizenMedicalDataCardProps {
@@ -71,6 +73,9 @@ const CitizenMedicalDataCard = ({
           )}
           <h4 className={citizenMedicalDataCardStyles.date}>
             On {new Date(Number(medicalData.on.toString())).toLocaleString()}
+          </h4>
+          <h4 className={citizenMedicalDataCardStyles.date}>
+            at {`${medicalData.city}, ${medicalData.state}`}
           </h4>
         </div>
       </a>
