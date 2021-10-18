@@ -1,5 +1,16 @@
-import { Avatar, CircularProgress, Slide, Snackbar } from "@material-ui/core";
-import { EmailRounded, LocationCity, PhoneOutlined } from "@material-ui/icons";
+import {
+  Avatar,
+  CircularProgress,
+  IconButton,
+  Slide,
+  Snackbar,
+} from "@material-ui/core";
+import {
+  EmailRounded,
+  ExitToAppRounded,
+  LocationCity,
+  PhoneOutlined,
+} from "@material-ui/icons";
 import { useRouter } from "next/router";
 import React, { forwardRef, useEffect, useState } from "react";
 import HealthCard from "../../src/components/dashboard/HealthCard";
@@ -116,6 +127,11 @@ const Dashboard = () => {
     setOpenAlert(true);
   };
 
+  const logout = () => {
+    localStorage.clear();
+    router.replace("/");
+  };
+
   return user?.id ? (
     <motion.div
       className={dashboardStyles.dashboard}
@@ -125,6 +141,12 @@ const Dashboard = () => {
       exit="exit"
     >
       <div className={dashboardStyles.profileTextAndHealthDataContainer}>
+        <div className={dashboardStyles.backButton}>
+          <IconButton onClick={logout} style={{ borderRadius: 7 }}>
+            <ExitToAppRounded />
+            &nbsp;<span>Log out</span>
+          </IconButton>
+        </div>
         <div className={dashboardStyles.profileTextDataContainer}>
           <div className={dashboardStyles.photo}>
             <Avatar

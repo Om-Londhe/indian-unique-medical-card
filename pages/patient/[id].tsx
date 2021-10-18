@@ -142,6 +142,7 @@ const Patient = () => {
         router.push("/dashboard");
       } else {
         getUserDataFromID(router.query!.id?.toString()!).then((data) => {
+          setLoading(false);
           setPatient({
             id: data.id,
             name: data.name,
@@ -153,14 +154,27 @@ const Patient = () => {
           });
         });
       }
+    } else {
+      getUserDataFromID(router.query!.id?.toString()!).then((data) => {
+        setLoading(false);
+        setPatient({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          address: data.address,
+          userType: data.userType,
+          photoURL: data.photoURL,
+        });
+      });
     }
-  }, [user]);
+  }, [user, verified]);
 
   useEffect(() => {
-    if (user) {
+    if (user || verified) {
       loadLatestMedicalData();
     }
-  }, [user, frequencyFilter]);
+  }, [user, verified, frequencyFilter]);
 
   const update = async () => {
     if (issue.length < 2) {
@@ -353,7 +367,7 @@ const Patient = () => {
             />
           </div>
           <h3 className={dashboardStyles.id} onClick={copyID}>
-            IUMC ID- {user?.id}
+            IUMC ID- {patient?.id}
           </h3>
           <h1 className={dashboardStyles.name}>{patient?.name}</h1>
           <h3 className={dashboardStyles.phoneNumber}>
