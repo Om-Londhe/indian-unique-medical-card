@@ -129,7 +129,7 @@ const Dashboard = () => {
 
   const logout = () => {
     localStorage.clear();
-    router.reload();
+    location.reload();
   };
 
   return user?.id ? (
